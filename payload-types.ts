@@ -12,7 +12,7 @@ export interface Config {
   };
   collections: {
     users: User;
-    pages: Page;
+    movies: Movie;
     media: Media;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -41,7 +41,8 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  username?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -55,31 +56,51 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "movies".
  */
-export interface Page {
-  id: string;
-  title?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  slate?:
+export interface Movie {
+  id: number;
+  name: string;
+  movieDate: string;
+  url: string;
+  ratings?:
     | {
-        [k: string]: unknown;
+        rating: number;
+        reviewer?: (number | null) | User;
+        review?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        review_html?: string | null;
+        id?: string | null;
       }[]
     | null;
+  services?:
+    | ('Netflix' | 'Shudder' | 'Stan' | 'Amazon Prime' | 'Disney Plus' | 'Binge' | 'Apple TV' | 'Paramount' | 'Flixtor')
+    | null;
+  didWeJump?: ('Jack (baby)' | 'Both' | 'Fatima (baby)') | null;
+  gory?: boolean | null;
+  poster: number | Media;
+  overview: string;
+  tagline?: string | null;
+  genres?:
+    | {
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -88,7 +109,7 @@ export interface Page {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   text?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -107,10 +128,10 @@ export interface Media {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -130,7 +151,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
