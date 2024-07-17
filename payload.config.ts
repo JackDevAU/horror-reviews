@@ -26,6 +26,7 @@ import { fileURLToPath } from 'url'
 import { MoviesCollection } from '@/cms/collections/movie'
 import { MediaCollection } from '@/cms/collections/media'
 import { UsersCollection } from '@/cms/collections/users'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -39,12 +40,19 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URI || '',
+      connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  // db: mongooseAdapter({
-  //   url: process.env.MONGODB_URI || '',
-  // }),
+  plugins: process.env.BLOB_READ_WRITE_TOKEN
+    ? [
+        vercelBlobStorage({
+          collections: {
+            [MediaCollection.slug]: true,
+          },
+          token: process.env.BLOB_READ_WRITE_TOKEN || '',
+        }),
+      ]
+    : [],
 
   /**
    * Payload can now accept specific translations from 'payload/i18n/en'
