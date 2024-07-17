@@ -1,10 +1,10 @@
 'use client'
-import React, { FormEvent, useRef, useState } from 'react'
+import React, { type FormEvent, useRef, useState } from 'react'
 import { Input } from '../ui/input'
 import { SearchIcon } from '../icon'
 import { searchReviewedMovies } from './nav-actions'
-import { PaginatedDocs } from 'payload'
-import { Media, Movie } from 'payload-types'
+import type { PaginatedDocs } from 'payload'
+import type { Media, Movie } from 'payload-types'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Card, CardTitle } from '../ui/card'
 import Image from 'next/image'
@@ -15,7 +15,7 @@ export default function NavSearch() {
   const [query, setQuery] = useState('')
   const [movies, setMovies] = useState<PaginatedDocs<Movie> | null>(null)
   const [loading, setLoading] = useState(false)
-  const popoverRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<any>(null)
   const { push } = useRouter()
 
   useClickOutside(popoverRef, () => setLoading(false))
@@ -26,6 +26,14 @@ export default function NavSearch() {
     const results = await searchReviewedMovies(query)
     setMovies(results)
   }
+
+  const averageRating = (movie: any) =>
+    movie?.ratings
+      ? Number(
+          movie?.ratings?.reduce((acc: any, cur: any) => acc + cur.rating, 0) /
+            movie?.ratings?.length,
+        )
+      : 0
 
   return (
     <>
@@ -70,13 +78,7 @@ export default function NavSearch() {
               />
               <div className="flex flex-col justify-between ml-4">
                 <CardTitle className="text-lg font-semibold">{movie.name}</CardTitle>
-                <p className="mt-2 text-sm text-gray-500">
-                  Score:{' '}
-                  {Number(
-                    movie?.ratings?.reduce((acc, cur) => acc + cur.rating, 0) /
-                      movie?.ratings?.length,
-                  ).toFixed(1) || 'N/A'}
-                </p>
+                <p className="mt-2 text-sm text-gray-500">Score: {averageRating(movie)}</p>
               </div>
             </Card>
           ))}

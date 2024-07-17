@@ -5,6 +5,10 @@ import { StarIcon } from './icon'
 import Link from 'next/link'
 
 export default function CarouselCardItem({ movie }: { movie: Movie }) {
+  const averageRating = movie?.ratings
+    ? Number(movie?.ratings?.reduce((acc, cur) => acc + cur.rating, 0) / movie?.ratings?.length)
+    : 0
+
   return (
     <div className="relative h-[500px] rounded-lg overflow-hidden">
       <Image
@@ -20,9 +24,7 @@ export default function CarouselCardItem({ movie }: { movie: Movie }) {
           <h2 className="text-2xl font-bold">{movie.name}</h2>
           <div className="flex flex-row gap-2">
             <span className="flex text-lg font-extrabold content-center items-center gap-1">
-              {Number(
-                movie?.ratings?.reduce((acc, cur) => acc + cur.rating, 0) / movie?.ratings?.length,
-              )}
+              {averageRating.toFixed(1)}
               <StarIcon className="w-4 h-4 fill-gray-900 dark:fill-gray-50" />
             </span>
             <div>

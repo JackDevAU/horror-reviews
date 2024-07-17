@@ -56,6 +56,7 @@ export async function addMovieAction(movieId: number) {
       overview,
       tagline,
       genres,
+      movieDate: new Date().toISOString(),
     },
   })
 

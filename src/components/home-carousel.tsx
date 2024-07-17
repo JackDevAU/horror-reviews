@@ -25,11 +25,14 @@ export default async function HomeCarousel() {
 
   // Calculate the average rating for each movie
   const moviesWithRatings = allMovies.docs.map((movie) => {
-    if (movie.ratings?.length === 0) {
-      return { movie, averageRating: 0 }
+    if (!movie.ratings || movie.ratings.length === 0) {
+      return { ...movie, averageRating: 0 }
     }
-    const totalRating = movie?.ratings?.reduce((acc, rating) => acc + rating.rating, 0)
-    const averageRating = totalRating / movie?.ratings?.length
+    const totalRating = movie?.ratings
+      ? movie?.ratings?.reduce((acc, rating) => acc + rating.rating, 0)
+      : 0
+
+    const averageRating = movie?.ratings ? 0 : totalRating / movie?.ratings?.length
     return {
       ...movie,
       averageRating,

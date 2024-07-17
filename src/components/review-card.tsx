@@ -7,9 +7,9 @@ import type { Media, Movie } from 'payload-types'
 import Image from 'next/image'
 
 export default function ReviewCard({ movie }: { movie: Movie }) {
-  const averageRating = Number(
-    movie?.ratings?.reduce((acc, cur) => acc + cur.rating, 0) / movie?.ratings?.length,
-  )
+  const averageRating = movie?.ratings
+    ? Number(movie?.ratings?.reduce((acc, cur) => acc + cur.rating, 0) / movie?.ratings?.length)
+    : 0
 
   const formattedRating = averageRating > 0 ? averageRating.toFixed(1) : 'N/A'
 
