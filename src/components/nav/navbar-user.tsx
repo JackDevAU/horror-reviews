@@ -1,13 +1,10 @@
-'use client'
-import { useAuth } from '@payloadcms/ui/providers/Auth'
 import Link from 'next/link'
 import React from 'react'
 import { Button } from '../ui/button'
+import { isAuthUser } from '@/lib/is-auth-user'
 
-export default function NavbarUser() {
-  const { user } = useAuth()
-
-  console.log(user)
+export default async function NavbarUser() {
+  const { user } = await isAuthUser()
 
   return (
     <>

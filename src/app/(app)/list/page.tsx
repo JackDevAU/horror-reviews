@@ -7,6 +7,12 @@ import { StarIcon } from '@/components/icon'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Our Reviews',
+}
+
 export default async function ListReviewsPage() {
   const payload = await getPayloadHMR({ config: configPromise })
 

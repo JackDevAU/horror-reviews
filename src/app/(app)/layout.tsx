@@ -12,7 +12,10 @@ const chivo = Chivo({
   variable: '--font-chivo',
 })
 export const metadata: Metadata = {
-  title: 'FJ Scream Zone',
+  title: {
+    template: '%s | FJ Scream Zone',
+    default: 'FJ Scream Zone',
+  },
   description: 'FJ Scream Zone is a movie review site!',
 }
 

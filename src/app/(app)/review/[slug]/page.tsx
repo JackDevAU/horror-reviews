@@ -9,6 +9,29 @@ import { Badge } from '@/components/ui/badge'
 import { PencilIcon } from 'lucide-react'
 import Link from 'next/link'
 
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const payload = await getPayloadHMR({ config: configPromise })
+
+  const movies = await payload.find({
+    collection: 'movies',
+    where: {
+      slug: { equals: params.slug },
+    },
+  })
+
+  if (movies.docs.length === 0) {
+    return {
+      title: 'Not Found',
+    }
+  }
+
+  const movie = movies.docs[0]
+
+  return {
+    title: movie.name,
+  }
+}
+
 export default async function MovieDetails({ params }: { params: { slug: string } }) {
   const { slug } = params
   const payload = await getPayloadHMR({ config: configPromise })
