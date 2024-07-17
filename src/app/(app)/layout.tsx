@@ -5,6 +5,7 @@ import Navbar from '@/components/nav/navbar'
 import Footer from '@/components/footer'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/sonner'
+import { Analytics } from '@vercel/analytics/react'
 
 const chivo = Chivo({
   subsets: ['latin'],
@@ -31,6 +32,7 @@ export default function RootLayout({
         <main className="bg-gray-950 text-gray-50 min-h-screen dark">{children}</main>
         <Footer />
         <Toaster position="top-right" richColors />
+        <Analytics />
       </body>
     </html>
   )
