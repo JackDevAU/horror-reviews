@@ -3,6 +3,7 @@ import React from 'react'
 import { Button } from '../ui/button'
 import { FilmIcon } from '../icon'
 import NavSearch from './nav-search'
+import NavbarUser from './navbar-user'
 
 export default function Navbar() {
   return (
@@ -13,11 +14,7 @@ export default function Navbar() {
       </Link>
       <div className="flex items-center gap-4 mt-4 md:mt-0">
         <NavSearch />
-        <Link href="/add">
-          <Button size="sm" variant="secondary">
-            Add New Review
-          </Button>
-        </Link>
+        <NavbarUser />
       </div>
     </header>
   )
