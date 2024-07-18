@@ -8,21 +8,36 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 
 import type { Metadata } from 'next'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
 export const metadata: Metadata = {
   title: 'Our Reviews',
 }
 
-export default async function ListReviewsPage() {
+export default async function ListReviewsPage({ searchParams }: any) {
+  const { page = 1 } = searchParams || {}
+  const currentPage = Number.parseInt(page)
+
   const payload = await getPayloadHMR({ config: configPromise })
 
   const reviews = await payload.find({
     collection: 'movies',
+    page: currentPage,
+    limit: 12,
   })
+
+  console.log(reviews)
 
   return (
     <div className="p-8">
-      {reviews.totalPages > 0 && (
+      {reviews.totalDocs > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
           {reviews.docs.map(({ id, poster, name, ratings, slug }) => {
             const averageRating = (ratings: any) =>
@@ -80,6 +95,31 @@ export default async function ListReviewsPage() {
               </Link>
             )
           })}
+          <Pagination className=" col-span-full">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  className={!reviews.hasPrevPage ? 'disabled' : ''}
+                  aria-disabled={!reviews.hasPrevPage}
+                  href={!reviews.hasPrevPage ? '#' : `?page=${currentPage - 1}`}
+                />
+              </PaginationItem>
+              {Array.from({ length: reviews.totalPages }, (_, index) => index + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink isActive={currentPage === page} href={`?page=${page}`}>
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  className={!reviews.hasNextPage ? 'disabled' : ''}
+                  aria-disabled={!reviews.hasNextPage}
+                  href={!reviews.hasNextPage ? '#' : `?page=${currentPage + 1}`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
     </div>

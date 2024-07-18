@@ -99,7 +99,7 @@ export default async function MovieDetails({ params }: { params: { slug: string 
             {movie.cast?.map((c) => (
               <CarouselItem key={c.id} className="basis-1/6 flex flex-col">
                 <Image
-                  src={(c.photo as Media)?.url ?? ''}
+                  src={(c.photo as Media)?.url ?? '/placeholder-image.webp'}
                   alt={(c.photo as Media)?.text ?? ''}
                   width={(c.photo as Media)?.width ?? 600}
                   height={(c.photo as Media)?.height ?? 900}

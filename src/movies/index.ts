@@ -50,7 +50,7 @@ export async function searchMovies(query: string) {
       .filter(({ poster_path }: { poster_path: string }) => !!poster_path)
 
     const combinedResults = await Promise.all(
-      movieSearchResults.map(async (movie) => {
+      movieSearchResults.map(async (movie: any) => {
         const detailsResponse = await fetch(
           `https://api.themoviedb.org/3/movie/${movie.id}/credits?language=en-US&api_key=${process.env.TMDB_BEARER_TOKEN}`,
         )
@@ -156,7 +156,7 @@ export async function addMovieAction(_movie: MovieResult) {
   const movie = await payload.create({
     collection: 'movies',
     data: {
-      name: _movie.title,
+      name: `${_movie.title}-${_movie.id}`,
       url: `https://www.themoviedb.org/movie/${_movie.id}?language=en-US&api_key=${process.env.TMDB_BEARER_TOKEN}`,
       ratings: [],
       poster: posterMedia.id,

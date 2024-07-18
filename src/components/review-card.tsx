@@ -43,7 +43,7 @@ export default function ReviewCard({ movie }: { movie: Movie }) {
   return (
     <div className="bg-gray-900 rounded-lg overflow-hidden">
       <Image
-        src={(movie.poster as Media)?.url ?? ''}
+        src={(movie.poster as Media)?.url ?? '/placeholder-image.webp'}
         alt={(movie.poster as Media)?.text ?? ''}
         width={(movie.poster as Media)?.width ?? 100}
         height={(movie.poster as Media)?.height ?? 100}
