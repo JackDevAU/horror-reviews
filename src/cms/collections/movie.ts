@@ -1,5 +1,5 @@
 import { HTMLConverterFeature, lexicalEditor, lexicalHTML } from '@payloadcms/richtext-lexical'
-import { CollectionConfig, FieldHook } from 'payload'
+import type { CollectionConfig, FieldHook } from 'payload'
 
 const format = (val: string): string =>
   val
@@ -105,6 +105,48 @@ export const MoviesCollection: CollectionConfig = {
         'Apple TV',
         'Paramount',
         'Flixtor',
+      ],
+    },
+    {
+      name: 'releaseDate',
+      type: 'date',
+      required: false,
+    },
+    {
+      name: 'producers',
+      type: 'array',
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
+      required: false,
+    },
+    {
+      name: 'directors',
+      type: 'array',
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
+      required: false,
+    },
+    {
+      name: 'cast',
+      type: 'array',
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+        {
+          name: 'photo',
+          type: 'upload',
+          relationTo: 'media',
+        },
       ],
     },
     {

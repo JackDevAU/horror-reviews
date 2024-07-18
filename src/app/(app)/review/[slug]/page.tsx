@@ -1,13 +1,20 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-
 import type { Media, Movie } from 'payload-types'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import { StarIcon } from '@/components/icon'
 import { Badge } from '@/components/ui/badge'
-import { PencilIcon } from 'lucide-react'
+import { PencilIcon, Activity, DropletIcon } from 'lucide-react'
+
 import Link from 'next/link'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const payload = await getPayloadHMR({ config: configPromise })
@@ -60,7 +67,10 @@ export default async function MovieDetails({ params }: { params: { slug: string 
       />
       <div className="md:flex flex-col gap-2 md:w-2/3">
         <div className="flex flex-row justify-between">
-          <h1 className="font-bold text-4xl border-b-2">{movie.name}</h1>{' '}
+          <h1 className="font-bold text-4xl border-b-2">
+            {movie.name}{' '}
+            {movie?.releaseDate ? `(${new Date(movie?.releaseDate).getFullYear()})` : null}
+          </h1>{' '}
           <Link href={`/admin/collections/movies/${movie.id}`}>
             <PencilIcon className="w-4 h-4" />
           </Link>
@@ -70,6 +80,38 @@ export default async function MovieDetails({ params }: { params: { slug: string 
           {movie?.genres?.map(({ name }) => name).join(', ')}
         </p>
         <p className="italic">{movie.overview}</p>
+        <p> Director(s): {movie.directors?.map((c) => c.name)?.join(', ')}</p>
+        <p>{movie.services ? movie.services : 'No Service Recorded'}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge variant="secondary" className="flex items-center gap-2 bg-blue-100 text-blue-800">
+            <Activity className="w-8 h-8" />
+
+            {movie.didWeJump ? movie.didWeJump : 'No jumps!'}
+          </Badge>
+          <Badge variant="destructive" className="flex items-center gap-2 bg-red-100 text-red-800">
+            <DropletIcon className="w-8 h-8" />
+            {movie.gory ? 'LOTS OF BLOOD' : 'Not Gory!'}
+          </Badge>
+        </div>
+
+        <Carousel>
+          <CarouselContent>
+            {movie.cast?.map((c) => (
+              <CarouselItem key={c.id} className="basis-1/6 flex flex-col">
+                <Image
+                  src={(c.photo as Media)?.url ?? ''}
+                  alt={(c.photo as Media)?.text ?? ''}
+                  width={(c.photo as Media)?.width ?? 600}
+                  height={(c.photo as Media)?.height ?? 900}
+                  className="w-full aspect-[6/9] object-cover"
+                />
+                <h1 className="text-center font-bold truncate text-xl my-5">{c.name}</h1>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="absolute top-1/2 transform -translate-y-1/2 left-2 z-10" />
+          <CarouselNext className="absolute top-1/2 transform -translate-y-1/2 right-2 z-10" />
+        </Carousel>
         <div className="mt-4 space-y-4">
           {movie?.ratings?.map((rating) => (
             <MovieRatingCard key={movie.id} movie={rating || undefined} />

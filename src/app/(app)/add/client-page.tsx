@@ -8,28 +8,31 @@ import { Button } from '@/components/ui/button'
 import { posterURL } from '@/movies/utils'
 import { addMovieAction } from '@/movies'
 import { toast } from 'sonner'
+import type { MovieResult } from '@/movies/types'
+import { useDebounce } from '@payloadcms/ui/hooks/useDebounce'
 
 export default function ClientPage() {
   const [query, setQuery] = useState('')
-  const [movies, setMovies] = useState<{ id: number; poster_path: string; title: string }[]>([])
+  const [movies, setMovies] = useState<MovieResult[]>([])
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
+  const debouncedSearchTerm = useDebounce(query, 300)
 
   useEffect(() => {
-    if (query) {
+    if (debouncedSearchTerm) {
       setSearching(true)
-      fetch(`/api/search?query=${encodeURIComponent(query)}`)
+      fetch(`/api/search?query=${encodeURIComponent(debouncedSearchTerm)}`)
         .then((res) => res.json())
         .then(setMovies)
         .then(() => setSearching(false))
     } else {
       setMovies([])
     }
-  }, [query])
+  }, [debouncedSearchTerm])
 
-  async function addMovie(id: number) {
+  async function addMovie(movie: MovieResult) {
     setLoading(true)
-    await addMovieAction(id)
+    await addMovieAction(movie)
     toast.success('Movie added!')
     setLoading(false)
   }
@@ -48,22 +51,31 @@ export default function ClientPage() {
       {searching && <div className="flex loader justify-center w-full" />}
       {movies.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-          {movies.map(({ id, poster_path, title }) => (
+          {movies.map((movie) => (
             <div
-              key={id}
-              className="flex flex-col items-center bg-gray-800 p-4 rounded-md shadow-md"
+              key={movie.id}
+              className="flex flex-col justify-between items-center bg-gray-800 p-4 rounded-md shadow-md"
             >
               <Image
-                src={posterURL(poster_path)}
-                alt={title ?? ''}
+                src={posterURL(movie.poster_path)}
+                alt={movie.title ?? ''}
                 width={300}
                 height={450}
                 className="w-full aspect-[2/3] object-cover rounded-md"
               />
               <h1 className="text-center font-bold truncate text-lg my-4 text-white text-wrap">
-                {title}
+                {movie.title} ({movie.release_date.split('-')[0]})
               </h1>
-              <Button disabled={loading} onClick={() => addMovie(id)} className="w-full">
+              <div className="flex flex-col gap-2">
+                <p>
+                  Director:{' '}
+                  {movie.crew
+                    .filter((c) => c.job === 'Director')
+                    .map((c) => c.name)
+                    .join(', ')}
+                </p>
+              </div>
+              <Button disabled={loading} onClick={() => addMovie(movie)} className="w-full">
                 Add
               </Button>
             </div>

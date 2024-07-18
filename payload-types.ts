@@ -89,6 +89,26 @@ export interface Movie {
   services?:
     | ('Netflix' | 'Shudder' | 'Stan' | 'Amazon Prime' | 'Disney Plus' | 'Binge' | 'Apple TV' | 'Paramount' | 'Flixtor')
     | null;
+  releaseDate?: string | null;
+  producers?:
+    | {
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  directors?:
+    | {
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  cast?:
+    | {
+        name?: string | null;
+        photo?: number | Media | null;
+        id?: string | null;
+      }[]
+    | null;
   didWeJump?: ('Jack (baby)' | 'Both' | 'Fatima (baby)') | null;
   gory?: boolean | null;
   poster: number | Media;
