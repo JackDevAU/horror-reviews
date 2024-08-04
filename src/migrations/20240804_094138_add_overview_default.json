@@ -1,5 +1,5 @@
 {
-  "id": "41091ef7-9ed7-4cc4-91c4-891997169cd9",
+  "id": "09f71321-f6f3-4a99-8539-e8c13a13cd88",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -191,6 +191,214 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "movies_producers": {
+      "name": "movies_producers",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "movies_producers_order_idx": {
+          "name": "movies_producers_order_idx",
+          "columns": [
+            "_order"
+          ],
+          "isUnique": false
+        },
+        "movies_producers_parent_id_idx": {
+          "name": "movies_producers_parent_id_idx",
+          "columns": [
+            "_parent_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "movies_producers_parent_id_fk": {
+          "name": "movies_producers_parent_id_fk",
+          "tableFrom": "movies_producers",
+          "tableTo": "movies",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "movies_directors": {
+      "name": "movies_directors",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "movies_directors_order_idx": {
+          "name": "movies_directors_order_idx",
+          "columns": [
+            "_order"
+          ],
+          "isUnique": false
+        },
+        "movies_directors_parent_id_idx": {
+          "name": "movies_directors_parent_id_idx",
+          "columns": [
+            "_parent_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "movies_directors_parent_id_fk": {
+          "name": "movies_directors_parent_id_fk",
+          "tableFrom": "movies_directors",
+          "tableTo": "movies",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "movies_cast": {
+      "name": "movies_cast",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo_id": {
+          "name": "photo_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "movies_cast_order_idx": {
+          "name": "movies_cast_order_idx",
+          "columns": [
+            "_order"
+          ],
+          "isUnique": false
+        },
+        "movies_cast_parent_id_idx": {
+          "name": "movies_cast_parent_id_idx",
+          "columns": [
+            "_parent_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "movies_cast_photo_id_media_id_fk": {
+          "name": "movies_cast_photo_id_media_id_fk",
+          "tableFrom": "movies_cast",
+          "tableTo": "media",
+          "columnsFrom": [
+            "photo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "movies_cast_parent_id_fk": {
+          "name": "movies_cast_parent_id_fk",
+          "tableFrom": "movies_cast",
+          "tableTo": "movies",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "movies_genres": {
       "name": "movies_genres",
       "schema": "",
@@ -264,6 +472,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "movie_id": {
+          "name": "movie_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
         "name": {
           "name": "name",
           "type": "varchar",
@@ -285,6 +499,12 @@
         "services": {
           "name": "services",
           "type": "enum_movies_services",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "release_date": {
+          "name": "release_date",
+          "type": "timestamp(3) with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -340,10 +560,10 @@
         }
       },
       "indexes": {
-        "movies_name_idx": {
-          "name": "movies_name_idx",
+        "movies_movie_id_idx": {
+          "name": "movies_movie_id_idx",
           "columns": [
-            "name"
+            "movie_id"
           ],
           "isUnique": true
         },

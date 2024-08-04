@@ -4,6 +4,8 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { posterURL } from './utils'
 import type { MovieResult } from './types'
+import type { Movie } from 'payload-types'
+import { formatSlug } from '@/cms/collections/movie'
 
 export async function searchMovies(query: string) {
   try {
@@ -116,8 +118,37 @@ export async function addMovieAction(_movie: MovieResult) {
     },
   })
 
+  const movie = await payload.create({
+    collection: 'movies',
+    data: {
+      name: `${_movie.title}`,
+      movieId: _movie.id.toString(),
+      slug: `${formatSlug(_movie.title)}-${_movie.id}`,
+      url: `https://www.themoviedb.org/movie/${_movie.id}?language=en-US&api_key=${process.env.TMDB_BEARER_TOKEN}`,
+      ratings: [],
+      poster: posterMedia.id,
+      overview: _movie.overview || 'No overview provided',
+      tagline: tagline,
+      genres: genres,
+      movieDate: new Date().toISOString(),
+      releaseDate: _movie.release_date,
+      directors: _movie.crew.filter(({ job }: { job: string }) => job === 'Director'),
+      producers: _movie.crew.filter(({ job }: { job: string }) => job === 'Producer'),
+    },
+  })
+
+  addCastToMovie(movie, _movie)
+
+  revalidatePath('/')
+
+  return movie
+}
+
+const addCastToMovie = async (movie: Movie, _movie: MovieResult) => {
+  const payload = await getPayloadHMR({ config: configPromise })
+
   const castMedia = Promise.all(
-    _movie.cast.map(async ({ profile_path, name }) => {
+    _movie.cast?.map(async ({ profile_path, name }) => {
       if (!profile_path) return null
       const castResponse = await fetch(posterURL(profile_path))
       const castArrayBuffer = await castResponse.arrayBuffer()
@@ -153,20 +184,10 @@ export async function addMovieAction(_movie: MovieResult) {
 
   const castMediaResolved = await castMedia
 
-  const movie = await payload.create({
+  await payload.update({
+    id: movie.id,
     collection: 'movies',
     data: {
-      name: `${_movie.title}-${_movie.id}`,
-      url: `https://www.themoviedb.org/movie/${_movie.id}?language=en-US&api_key=${process.env.TMDB_BEARER_TOKEN}`,
-      ratings: [],
-      poster: posterMedia.id,
-      overview: _movie.overview,
-      tagline: tagline,
-      genres: genres,
-      movieDate: new Date().toISOString(),
-      releaseDate: _movie.release_date,
-      directors: _movie.crew.filter(({ job }: { job: string }) => job === 'Director'),
-      producers: _movie.crew.filter(({ job }: { job: string }) => job === 'Producer'),
       cast: _movie.cast.map(({ name }, index) => ({
         name,
         photo: castMediaResolved?.[index]?.id,
@@ -175,6 +196,4 @@ export async function addMovieAction(_movie: MovieResult) {
   })
 
   revalidatePath('/')
-
-  return movie
 }

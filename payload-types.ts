@@ -60,6 +60,7 @@ export interface User {
  */
 export interface Movie {
   id: number;
+  movieId: string;
   name: string;
   movieDate: string;
   url: string;
@@ -112,7 +113,7 @@ export interface Movie {
   didWeJump?: ('Jack (baby)' | 'Both' | 'Fatima (baby)') | null;
   gory?: boolean | null;
   poster: number | Media;
-  overview: string;
+  overview?: string | null;
   tagline?: string | null;
   genres?:
     | {

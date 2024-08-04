@@ -32,9 +32,14 @@ export default function ClientPage() {
 
   async function addMovie(movie: MovieResult) {
     setLoading(true)
-    await addMovieAction(movie)
-    toast.success('Movie added!')
-    setLoading(false)
+    try {
+      await addMovieAction(movie)
+      toast.success('Movie added!')
+      setLoading(false)
+    } catch (e) {
+      toast.error('Failed to add movie')
+      setLoading(false)
+    }
   }
 
   return (

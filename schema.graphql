@@ -1,27 +1,28 @@
 type Query {
-  User(id: String!, draft: Boolean): User
+  User(id: Int!, draft: Boolean): User
   Users(draft: Boolean, where: User_where, limit: Int, page: Int, sort: String): Users
   countUsers(draft: Boolean, where: User_where): countUsers
-  docAccessUser(id: String!): usersDocAccess
+  docAccessUser(id: Int!): usersDocAccess
   meUser: usersMe
   initializedUser: Boolean
-  Page(id: String!, draft: Boolean): Page
-  Pages(draft: Boolean, where: Page_where, limit: Int, page: Int, sort: String): Pages
-  countPages(draft: Boolean, where: Page_where): countPages
-  docAccessPage(id: String!): pagesDocAccess
-  Media(id: String!, draft: Boolean): Media
+  Movie(id: String!, draft: Boolean): Movie
+  Movies(draft: Boolean, where: Movie_where, limit: Int, page: Int, sort: String): Movies
+  countMovies(draft: Boolean, where: Movie_where): countMovies
+  docAccessMovie(id: String!): moviesDocAccess
+  Media(id: Int!, draft: Boolean): Media
   allMedia(draft: Boolean, where: Media_where, limit: Int, page: Int, sort: String): allMedia
   countallMedia(draft: Boolean, where: Media_where): countallMedia
-  docAccessMedia(id: String!): mediaDocAccess
-  PayloadPreference(id: String!, draft: Boolean): PayloadPreference
+  docAccessMedia(id: Int!): mediaDocAccess
+  PayloadPreference(id: Int!, draft: Boolean): PayloadPreference
   PayloadPreferences(draft: Boolean, where: PayloadPreference_where, limit: Int, page: Int, sort: String): PayloadPreferences
   countPayloadPreferences(draft: Boolean, where: PayloadPreference_where): countPayloadPreferences
-  docAccessPayloadPreference(id: String!): payload_preferencesDocAccess
+  docAccessPayloadPreference(id: Int!): payload_preferencesDocAccess
   Access: Access
 }
 
 type User {
-  id: String
+  id: Int
+  username: String
   updatedAt: DateTime
   createdAt: DateTime
   email: EmailAddress!
@@ -59,12 +60,24 @@ type Users {
 }
 
 input User_where {
+  username: User_username_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
   email: User_email_operator
   id: User_id_operator
   AND: [User_where_and]
   OR: [User_where_or]
+}
+
+input User_username_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
 }
 
 input User_updatedAt_operator {
@@ -100,17 +113,17 @@ input User_email_operator {
 }
 
 input User_id_operator {
-  equals: String
-  not_equals: String
-  like: String
-  contains: String
-  in: [String]
-  not_in: [String]
-  all: [String]
+  equals: Int
+  not_equals: Int
+  greater_than_equal: Int
+  greater_than: Int
+  less_than_equal: Int
+  less_than: Int
   exists: Boolean
 }
 
 input User_where_and {
+  username: User_username_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
   email: User_email_operator
@@ -120,6 +133,7 @@ input User_where_and {
 }
 
 input User_where_or {
+  username: User_username_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
   email: User_email_operator
@@ -142,10 +156,34 @@ type usersDocAccess {
 }
 
 type UsersDocAccessFields {
+  username: UsersDocAccessFields_username
   updatedAt: UsersDocAccessFields_updatedAt
   createdAt: UsersDocAccessFields_createdAt
   email: UsersDocAccessFields_email
   password: UsersDocAccessFields_password
+}
+
+type UsersDocAccessFields_username {
+  create: UsersDocAccessFields_username_Create
+  read: UsersDocAccessFields_username_Read
+  update: UsersDocAccessFields_username_Update
+  delete: UsersDocAccessFields_username_Delete
+}
+
+type UsersDocAccessFields_username_Create {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_username_Read {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_username_Update {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_username_Delete {
+  permission: Boolean!
 }
 
 type UsersDocAccessFields_updatedAt {
@@ -273,16 +311,39 @@ type UsersUnlockDocAccess {
 type usersMe {
   collection: String
   exp: Int
+  strategy: String
   token: String
   user: User
 }
 
-type Page {
-  id: String
-  title: String
-  content(depth: Int): JSON
+type Movie {
+  id: String!
+  name: String!
+  movieDate: DateTime!
+  url: String!
+  ratings: [Movie_Ratings!]
+  services: Movie_services
+  releaseDate: DateTime
+  producers: [Movie_Producers!]
+  directors: [Movie_Directors!]
+  cast: [Movie_Cast!]
+  didWeJump: Movie_didWeJump
+  gory: Boolean
+  poster(where: Movie_Poster_where): Media!
+  overview: String!
+  tagline: String
+  genres: [Movie_Genres!]
+  slug: String
   updatedAt: DateTime
   createdAt: DateTime
+}
+
+type Movie_Ratings {
+  rating: Float
+  reviewer: User
+  review(depth: Int): JSON
+  review_html: String
+  id: String
 }
 
 """
@@ -290,235 +351,36 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
-type Pages {
-  docs: [Page]
-  hasNextPage: Boolean
-  hasPrevPage: Boolean
-  limit: Int
-  nextPage: Int
-  offset: Int
-  page: Int
-  pagingCounter: Int
-  prevPage: Int
-  totalDocs: Int
-  totalPages: Int
+enum Movie_services {
+  Netflix
+  Shudder
+  Stan
+  AmazonPrime
+  DisneyPlus
+  Binge
+  AppleTV
+  Paramount
+  Flixtor
 }
 
-input Page_where {
-  title: Page_title_operator
-  content: Page_content_operator
-  updatedAt: Page_updatedAt_operator
-  createdAt: Page_createdAt_operator
-  id: Page_id_operator
-  AND: [Page_where_and]
-  OR: [Page_where_or]
+type Movie_Producers {
+  name: String
+  id: String
 }
 
-input Page_title_operator {
-  equals: String
-  not_equals: String
-  like: String
-  contains: String
-  in: [String]
-  not_in: [String]
-  all: [String]
-  exists: Boolean
+type Movie_Directors {
+  name: String
+  id: String
 }
 
-input Page_content_operator {
-  equals: JSON
-  not_equals: JSON
-  like: JSON
-  contains: JSON
-  exists: Boolean
-}
-
-input Page_updatedAt_operator {
-  equals: DateTime
-  not_equals: DateTime
-  greater_than_equal: DateTime
-  greater_than: DateTime
-  less_than_equal: DateTime
-  less_than: DateTime
-  like: DateTime
-  exists: Boolean
-}
-
-input Page_createdAt_operator {
-  equals: DateTime
-  not_equals: DateTime
-  greater_than_equal: DateTime
-  greater_than: DateTime
-  less_than_equal: DateTime
-  less_than: DateTime
-  like: DateTime
-  exists: Boolean
-}
-
-input Page_id_operator {
-  equals: String
-  not_equals: String
-  like: String
-  contains: String
-  in: [String]
-  not_in: [String]
-  all: [String]
-  exists: Boolean
-}
-
-input Page_where_and {
-  title: Page_title_operator
-  content: Page_content_operator
-  updatedAt: Page_updatedAt_operator
-  createdAt: Page_createdAt_operator
-  id: Page_id_operator
-  AND: [Page_where_and]
-  OR: [Page_where_or]
-}
-
-input Page_where_or {
-  title: Page_title_operator
-  content: Page_content_operator
-  updatedAt: Page_updatedAt_operator
-  createdAt: Page_createdAt_operator
-  id: Page_id_operator
-  AND: [Page_where_and]
-  OR: [Page_where_or]
-}
-
-type countPages {
-  totalDocs: Int
-}
-
-type pagesDocAccess {
-  fields: PagesDocAccessFields
-  create: PagesCreateDocAccess
-  read: PagesReadDocAccess
-  update: PagesUpdateDocAccess
-  delete: PagesDeleteDocAccess
-}
-
-type PagesDocAccessFields {
-  title: PagesDocAccessFields_title
-  content: PagesDocAccessFields_content
-  updatedAt: PagesDocAccessFields_updatedAt
-  createdAt: PagesDocAccessFields_createdAt
-}
-
-type PagesDocAccessFields_title {
-  create: PagesDocAccessFields_title_Create
-  read: PagesDocAccessFields_title_Read
-  update: PagesDocAccessFields_title_Update
-  delete: PagesDocAccessFields_title_Delete
-}
-
-type PagesDocAccessFields_title_Create {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_title_Read {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_title_Update {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_title_Delete {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_content {
-  create: PagesDocAccessFields_content_Create
-  read: PagesDocAccessFields_content_Read
-  update: PagesDocAccessFields_content_Update
-  delete: PagesDocAccessFields_content_Delete
-}
-
-type PagesDocAccessFields_content_Create {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_content_Read {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_content_Update {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_content_Delete {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_updatedAt {
-  create: PagesDocAccessFields_updatedAt_Create
-  read: PagesDocAccessFields_updatedAt_Read
-  update: PagesDocAccessFields_updatedAt_Update
-  delete: PagesDocAccessFields_updatedAt_Delete
-}
-
-type PagesDocAccessFields_updatedAt_Create {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_updatedAt_Read {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_updatedAt_Update {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_updatedAt_Delete {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_createdAt {
-  create: PagesDocAccessFields_createdAt_Create
-  read: PagesDocAccessFields_createdAt_Read
-  update: PagesDocAccessFields_createdAt_Update
-  delete: PagesDocAccessFields_createdAt_Delete
-}
-
-type PagesDocAccessFields_createdAt_Create {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_createdAt_Read {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_createdAt_Update {
-  permission: Boolean!
-}
-
-type PagesDocAccessFields_createdAt_Delete {
-  permission: Boolean!
-}
-
-type PagesCreateDocAccess {
-  permission: Boolean!
-  where: JSONObject
-}
-
-type PagesReadDocAccess {
-  permission: Boolean!
-  where: JSONObject
-}
-
-type PagesUpdateDocAccess {
-  permission: Boolean!
-  where: JSONObject
-}
-
-type PagesDeleteDocAccess {
-  permission: Boolean!
-  where: JSONObject
+type Movie_Cast {
+  name: String
+  photo(where: Movie_Cast_Photo_where): Media
+  id: String
 }
 
 type Media {
-  id: String
+  id: Int
   text: String
   updatedAt: DateTime
   createdAt: DateTime
@@ -531,6 +393,1652 @@ type Media {
   height: Float
   focalX: Float
   focalY: Float
+}
+
+input Movie_Cast_Photo_where {
+  text: Movie_Cast_Photo_text_operator
+  updatedAt: Movie_Cast_Photo_updatedAt_operator
+  createdAt: Movie_Cast_Photo_createdAt_operator
+  url: Movie_Cast_Photo_url_operator
+  thumbnailURL: Movie_Cast_Photo_thumbnailURL_operator
+  filename: Movie_Cast_Photo_filename_operator
+  mimeType: Movie_Cast_Photo_mimeType_operator
+  filesize: Movie_Cast_Photo_filesize_operator
+  width: Movie_Cast_Photo_width_operator
+  height: Movie_Cast_Photo_height_operator
+  focalX: Movie_Cast_Photo_focalX_operator
+  focalY: Movie_Cast_Photo_focalY_operator
+  id: Movie_Cast_Photo_id_operator
+  AND: [Movie_Cast_Photo_where_and]
+  OR: [Movie_Cast_Photo_where_or]
+}
+
+input Movie_Cast_Photo_text_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_updatedAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_createdAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_url_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_thumbnailURL_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_filename_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_mimeType_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_filesize_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_width_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_height_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_focalX_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_focalY_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Cast_Photo_where_and {
+  text: Movie_Cast_Photo_text_operator
+  updatedAt: Movie_Cast_Photo_updatedAt_operator
+  createdAt: Movie_Cast_Photo_createdAt_operator
+  url: Movie_Cast_Photo_url_operator
+  thumbnailURL: Movie_Cast_Photo_thumbnailURL_operator
+  filename: Movie_Cast_Photo_filename_operator
+  mimeType: Movie_Cast_Photo_mimeType_operator
+  filesize: Movie_Cast_Photo_filesize_operator
+  width: Movie_Cast_Photo_width_operator
+  height: Movie_Cast_Photo_height_operator
+  focalX: Movie_Cast_Photo_focalX_operator
+  focalY: Movie_Cast_Photo_focalY_operator
+  id: Movie_Cast_Photo_id_operator
+  AND: [Movie_Cast_Photo_where_and]
+  OR: [Movie_Cast_Photo_where_or]
+}
+
+input Movie_Cast_Photo_where_or {
+  text: Movie_Cast_Photo_text_operator
+  updatedAt: Movie_Cast_Photo_updatedAt_operator
+  createdAt: Movie_Cast_Photo_createdAt_operator
+  url: Movie_Cast_Photo_url_operator
+  thumbnailURL: Movie_Cast_Photo_thumbnailURL_operator
+  filename: Movie_Cast_Photo_filename_operator
+  mimeType: Movie_Cast_Photo_mimeType_operator
+  filesize: Movie_Cast_Photo_filesize_operator
+  width: Movie_Cast_Photo_width_operator
+  height: Movie_Cast_Photo_height_operator
+  focalX: Movie_Cast_Photo_focalX_operator
+  focalY: Movie_Cast_Photo_focalY_operator
+  id: Movie_Cast_Photo_id_operator
+  AND: [Movie_Cast_Photo_where_and]
+  OR: [Movie_Cast_Photo_where_or]
+}
+
+enum Movie_didWeJump {
+  Jack_baby_
+  Both
+  Fatima_baby_
+}
+
+input Movie_Poster_where {
+  text: Movie_Poster_text_operator
+  updatedAt: Movie_Poster_updatedAt_operator
+  createdAt: Movie_Poster_createdAt_operator
+  url: Movie_Poster_url_operator
+  thumbnailURL: Movie_Poster_thumbnailURL_operator
+  filename: Movie_Poster_filename_operator
+  mimeType: Movie_Poster_mimeType_operator
+  filesize: Movie_Poster_filesize_operator
+  width: Movie_Poster_width_operator
+  height: Movie_Poster_height_operator
+  focalX: Movie_Poster_focalX_operator
+  focalY: Movie_Poster_focalY_operator
+  id: Movie_Poster_id_operator
+  AND: [Movie_Poster_where_and]
+  OR: [Movie_Poster_where_or]
+}
+
+input Movie_Poster_text_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_updatedAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_Poster_createdAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_Poster_url_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_thumbnailURL_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_filename_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_mimeType_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_filesize_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Poster_width_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Poster_height_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Poster_focalX_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Poster_focalY_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+  exists: Boolean
+}
+
+input Movie_Poster_id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_Poster_where_and {
+  text: Movie_Poster_text_operator
+  updatedAt: Movie_Poster_updatedAt_operator
+  createdAt: Movie_Poster_createdAt_operator
+  url: Movie_Poster_url_operator
+  thumbnailURL: Movie_Poster_thumbnailURL_operator
+  filename: Movie_Poster_filename_operator
+  mimeType: Movie_Poster_mimeType_operator
+  filesize: Movie_Poster_filesize_operator
+  width: Movie_Poster_width_operator
+  height: Movie_Poster_height_operator
+  focalX: Movie_Poster_focalX_operator
+  focalY: Movie_Poster_focalY_operator
+  id: Movie_Poster_id_operator
+  AND: [Movie_Poster_where_and]
+  OR: [Movie_Poster_where_or]
+}
+
+input Movie_Poster_where_or {
+  text: Movie_Poster_text_operator
+  updatedAt: Movie_Poster_updatedAt_operator
+  createdAt: Movie_Poster_createdAt_operator
+  url: Movie_Poster_url_operator
+  thumbnailURL: Movie_Poster_thumbnailURL_operator
+  filename: Movie_Poster_filename_operator
+  mimeType: Movie_Poster_mimeType_operator
+  filesize: Movie_Poster_filesize_operator
+  width: Movie_Poster_width_operator
+  height: Movie_Poster_height_operator
+  focalX: Movie_Poster_focalX_operator
+  focalY: Movie_Poster_focalY_operator
+  id: Movie_Poster_id_operator
+  AND: [Movie_Poster_where_and]
+  OR: [Movie_Poster_where_or]
+}
+
+type Movie_Genres {
+  name: String
+  id: String
+}
+
+type Movies {
+  docs: [Movie]
+  hasNextPage: Boolean
+  hasPrevPage: Boolean
+  limit: Int
+  nextPage: Int
+  offset: Int
+  page: Int
+  pagingCounter: Int
+  prevPage: Int
+  totalDocs: Int
+  totalPages: Int
+}
+
+input Movie_where {
+  id: Movie_id_operator
+  name: Movie_name_operator
+  movieDate: Movie_movieDate_operator
+  url: Movie_url_operator
+  ratings__rating: Movie_ratings__rating_operator
+  ratings__reviewer: Movie_ratings__reviewer_operator
+  ratings__review: Movie_ratings__review_operator
+  ratings__review_html: Movie_ratings__review_html_operator
+  ratings__id: Movie_ratings__id_operator
+  services: Movie_services_operator
+  releaseDate: Movie_releaseDate_operator
+  producers__name: Movie_producers__name_operator
+  producers__id: Movie_producers__id_operator
+  directors__name: Movie_directors__name_operator
+  directors__id: Movie_directors__id_operator
+  cast__name: Movie_cast__name_operator
+  cast__photo: Movie_cast__photo_operator
+  cast__id: Movie_cast__id_operator
+  didWeJump: Movie_didWeJump_operator
+  gory: Movie_gory_operator
+  poster: Movie_poster_operator
+  overview: Movie_overview_operator
+  tagline: Movie_tagline_operator
+  genres__name: Movie_genres__name_operator
+  genres__id: Movie_genres__id_operator
+  slug: Movie_slug_operator
+  updatedAt: Movie_updatedAt_operator
+  createdAt: Movie_createdAt_operator
+  AND: [Movie_where_and]
+  OR: [Movie_where_or]
+}
+
+input Movie_id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+}
+
+input Movie_name_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+}
+
+input Movie_movieDate_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+}
+
+input Movie_url_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+}
+
+input Movie_ratings__rating_operator {
+  equals: Float
+  not_equals: Float
+  greater_than_equal: Float
+  greater_than: Float
+  less_than_equal: Float
+  less_than: Float
+}
+
+input Movie_ratings__reviewer_operator {
+  equals: JSON
+  not_equals: JSON
+  in: [JSON]
+  not_in: [JSON]
+  all: [JSON]
+  exists: Boolean
+}
+
+input Movie_ratings__review_operator {
+  equals: JSON
+  not_equals: JSON
+  like: JSON
+  contains: JSON
+  exists: Boolean
+}
+
+input Movie_ratings__review_html_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  exists: Boolean
+}
+
+input Movie_ratings__id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_services_operator {
+  equals: Movie_services_Input
+  not_equals: Movie_services_Input
+  in: [Movie_services_Input]
+  not_in: [Movie_services_Input]
+  all: [Movie_services_Input]
+  exists: Boolean
+}
+
+enum Movie_services_Input {
+  Netflix
+  Shudder
+  Stan
+  AmazonPrime
+  DisneyPlus
+  Binge
+  AppleTV
+  Paramount
+  Flixtor
+}
+
+input Movie_releaseDate_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_producers__name_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_producers__id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_directors__name_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_directors__id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_cast__name_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_cast__photo_operator {
+  equals: String
+  not_equals: String
+  exists: Boolean
+}
+
+input Movie_cast__id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_didWeJump_operator {
+  equals: Movie_didWeJump_Input
+  not_equals: Movie_didWeJump_Input
+  in: [Movie_didWeJump_Input]
+  not_in: [Movie_didWeJump_Input]
+  all: [Movie_didWeJump_Input]
+  exists: Boolean
+}
+
+enum Movie_didWeJump_Input {
+  Jack_baby_
+  Both
+  Fatima_baby_
+}
+
+input Movie_gory_operator {
+  equals: Boolean
+  not_equals: Boolean
+  exists: Boolean
+}
+
+input Movie_poster_operator {
+  equals: String
+  not_equals: String
+}
+
+input Movie_overview_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+}
+
+input Movie_tagline_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_genres__name_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_genres__id_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_slug_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
+input Movie_updatedAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_createdAt_operator {
+  equals: DateTime
+  not_equals: DateTime
+  greater_than_equal: DateTime
+  greater_than: DateTime
+  less_than_equal: DateTime
+  less_than: DateTime
+  like: DateTime
+  exists: Boolean
+}
+
+input Movie_where_and {
+  id: Movie_id_operator
+  name: Movie_name_operator
+  movieDate: Movie_movieDate_operator
+  url: Movie_url_operator
+  ratings__rating: Movie_ratings__rating_operator
+  ratings__reviewer: Movie_ratings__reviewer_operator
+  ratings__review: Movie_ratings__review_operator
+  ratings__review_html: Movie_ratings__review_html_operator
+  ratings__id: Movie_ratings__id_operator
+  services: Movie_services_operator
+  releaseDate: Movie_releaseDate_operator
+  producers__name: Movie_producers__name_operator
+  producers__id: Movie_producers__id_operator
+  directors__name: Movie_directors__name_operator
+  directors__id: Movie_directors__id_operator
+  cast__name: Movie_cast__name_operator
+  cast__photo: Movie_cast__photo_operator
+  cast__id: Movie_cast__id_operator
+  didWeJump: Movie_didWeJump_operator
+  gory: Movie_gory_operator
+  poster: Movie_poster_operator
+  overview: Movie_overview_operator
+  tagline: Movie_tagline_operator
+  genres__name: Movie_genres__name_operator
+  genres__id: Movie_genres__id_operator
+  slug: Movie_slug_operator
+  updatedAt: Movie_updatedAt_operator
+  createdAt: Movie_createdAt_operator
+  AND: [Movie_where_and]
+  OR: [Movie_where_or]
+}
+
+input Movie_where_or {
+  id: Movie_id_operator
+  name: Movie_name_operator
+  movieDate: Movie_movieDate_operator
+  url: Movie_url_operator
+  ratings__rating: Movie_ratings__rating_operator
+  ratings__reviewer: Movie_ratings__reviewer_operator
+  ratings__review: Movie_ratings__review_operator
+  ratings__review_html: Movie_ratings__review_html_operator
+  ratings__id: Movie_ratings__id_operator
+  services: Movie_services_operator
+  releaseDate: Movie_releaseDate_operator
+  producers__name: Movie_producers__name_operator
+  producers__id: Movie_producers__id_operator
+  directors__name: Movie_directors__name_operator
+  directors__id: Movie_directors__id_operator
+  cast__name: Movie_cast__name_operator
+  cast__photo: Movie_cast__photo_operator
+  cast__id: Movie_cast__id_operator
+  didWeJump: Movie_didWeJump_operator
+  gory: Movie_gory_operator
+  poster: Movie_poster_operator
+  overview: Movie_overview_operator
+  tagline: Movie_tagline_operator
+  genres__name: Movie_genres__name_operator
+  genres__id: Movie_genres__id_operator
+  slug: Movie_slug_operator
+  updatedAt: Movie_updatedAt_operator
+  createdAt: Movie_createdAt_operator
+  AND: [Movie_where_and]
+  OR: [Movie_where_or]
+}
+
+type countMovies {
+  totalDocs: Int
+}
+
+type moviesDocAccess {
+  fields: MoviesDocAccessFields
+  create: MoviesCreateDocAccess
+  read: MoviesReadDocAccess
+  update: MoviesUpdateDocAccess
+  delete: MoviesDeleteDocAccess
+}
+
+type MoviesDocAccessFields {
+  id: MoviesDocAccessFields_id
+  name: MoviesDocAccessFields_name
+  movieDate: MoviesDocAccessFields_movieDate
+  url: MoviesDocAccessFields_url
+  ratings: MoviesDocAccessFields_ratings
+  services: MoviesDocAccessFields_services
+  releaseDate: MoviesDocAccessFields_releaseDate
+  producers: MoviesDocAccessFields_producers
+  directors: MoviesDocAccessFields_directors
+  cast: MoviesDocAccessFields_cast
+  didWeJump: MoviesDocAccessFields_didWeJump
+  gory: MoviesDocAccessFields_gory
+  poster: MoviesDocAccessFields_poster
+  overview: MoviesDocAccessFields_overview
+  tagline: MoviesDocAccessFields_tagline
+  genres: MoviesDocAccessFields_genres
+  slug: MoviesDocAccessFields_slug
+  updatedAt: MoviesDocAccessFields_updatedAt
+  createdAt: MoviesDocAccessFields_createdAt
+}
+
+type MoviesDocAccessFields_id {
+  create: MoviesDocAccessFields_id_Create
+  read: MoviesDocAccessFields_id_Read
+  update: MoviesDocAccessFields_id_Update
+  delete: MoviesDocAccessFields_id_Delete
+}
+
+type MoviesDocAccessFields_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_name {
+  create: MoviesDocAccessFields_name_Create
+  read: MoviesDocAccessFields_name_Read
+  update: MoviesDocAccessFields_name_Update
+  delete: MoviesDocAccessFields_name_Delete
+}
+
+type MoviesDocAccessFields_name_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_name_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_name_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_movieDate {
+  create: MoviesDocAccessFields_movieDate_Create
+  read: MoviesDocAccessFields_movieDate_Read
+  update: MoviesDocAccessFields_movieDate_Update
+  delete: MoviesDocAccessFields_movieDate_Delete
+}
+
+type MoviesDocAccessFields_movieDate_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_movieDate_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_movieDate_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_movieDate_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_url {
+  create: MoviesDocAccessFields_url_Create
+  read: MoviesDocAccessFields_url_Read
+  update: MoviesDocAccessFields_url_Update
+  delete: MoviesDocAccessFields_url_Delete
+}
+
+type MoviesDocAccessFields_url_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_url_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_url_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_url_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings {
+  create: MoviesDocAccessFields_ratings_Create
+  read: MoviesDocAccessFields_ratings_Read
+  update: MoviesDocAccessFields_ratings_Update
+  delete: MoviesDocAccessFields_ratings_Delete
+  fields: MoviesDocAccessFields_ratings_Fields
+}
+
+type MoviesDocAccessFields_ratings_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_Fields {
+  rating: MoviesDocAccessFields_ratings_rating
+  reviewer: MoviesDocAccessFields_ratings_reviewer
+  review: MoviesDocAccessFields_ratings_review
+  review_html: MoviesDocAccessFields_ratings_review_html
+  id: MoviesDocAccessFields_ratings_id
+}
+
+type MoviesDocAccessFields_ratings_rating {
+  create: MoviesDocAccessFields_ratings_rating_Create
+  read: MoviesDocAccessFields_ratings_rating_Read
+  update: MoviesDocAccessFields_ratings_rating_Update
+  delete: MoviesDocAccessFields_ratings_rating_Delete
+}
+
+type MoviesDocAccessFields_ratings_rating_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_rating_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_rating_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_rating_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_reviewer {
+  create: MoviesDocAccessFields_ratings_reviewer_Create
+  read: MoviesDocAccessFields_ratings_reviewer_Read
+  update: MoviesDocAccessFields_ratings_reviewer_Update
+  delete: MoviesDocAccessFields_ratings_reviewer_Delete
+}
+
+type MoviesDocAccessFields_ratings_reviewer_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_reviewer_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_reviewer_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_reviewer_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review {
+  create: MoviesDocAccessFields_ratings_review_Create
+  read: MoviesDocAccessFields_ratings_review_Read
+  update: MoviesDocAccessFields_ratings_review_Update
+  delete: MoviesDocAccessFields_ratings_review_Delete
+}
+
+type MoviesDocAccessFields_ratings_review_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_html {
+  create: MoviesDocAccessFields_ratings_review_html_Create
+  read: MoviesDocAccessFields_ratings_review_html_Read
+  update: MoviesDocAccessFields_ratings_review_html_Update
+  delete: MoviesDocAccessFields_ratings_review_html_Delete
+}
+
+type MoviesDocAccessFields_ratings_review_html_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_html_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_html_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_review_html_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_id {
+  create: MoviesDocAccessFields_ratings_id_Create
+  read: MoviesDocAccessFields_ratings_id_Read
+  update: MoviesDocAccessFields_ratings_id_Update
+  delete: MoviesDocAccessFields_ratings_id_Delete
+}
+
+type MoviesDocAccessFields_ratings_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_ratings_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_services {
+  create: MoviesDocAccessFields_services_Create
+  read: MoviesDocAccessFields_services_Read
+  update: MoviesDocAccessFields_services_Update
+  delete: MoviesDocAccessFields_services_Delete
+}
+
+type MoviesDocAccessFields_services_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_services_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_services_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_services_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_releaseDate {
+  create: MoviesDocAccessFields_releaseDate_Create
+  read: MoviesDocAccessFields_releaseDate_Read
+  update: MoviesDocAccessFields_releaseDate_Update
+  delete: MoviesDocAccessFields_releaseDate_Delete
+}
+
+type MoviesDocAccessFields_releaseDate_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_releaseDate_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_releaseDate_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_releaseDate_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers {
+  create: MoviesDocAccessFields_producers_Create
+  read: MoviesDocAccessFields_producers_Read
+  update: MoviesDocAccessFields_producers_Update
+  delete: MoviesDocAccessFields_producers_Delete
+  fields: MoviesDocAccessFields_producers_Fields
+}
+
+type MoviesDocAccessFields_producers_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_Fields {
+  name: MoviesDocAccessFields_producers_name
+  id: MoviesDocAccessFields_producers_id
+}
+
+type MoviesDocAccessFields_producers_name {
+  create: MoviesDocAccessFields_producers_name_Create
+  read: MoviesDocAccessFields_producers_name_Read
+  update: MoviesDocAccessFields_producers_name_Update
+  delete: MoviesDocAccessFields_producers_name_Delete
+}
+
+type MoviesDocAccessFields_producers_name_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_name_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_name_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_id {
+  create: MoviesDocAccessFields_producers_id_Create
+  read: MoviesDocAccessFields_producers_id_Read
+  update: MoviesDocAccessFields_producers_id_Update
+  delete: MoviesDocAccessFields_producers_id_Delete
+}
+
+type MoviesDocAccessFields_producers_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_producers_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors {
+  create: MoviesDocAccessFields_directors_Create
+  read: MoviesDocAccessFields_directors_Read
+  update: MoviesDocAccessFields_directors_Update
+  delete: MoviesDocAccessFields_directors_Delete
+  fields: MoviesDocAccessFields_directors_Fields
+}
+
+type MoviesDocAccessFields_directors_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_Fields {
+  name: MoviesDocAccessFields_directors_name
+  id: MoviesDocAccessFields_directors_id
+}
+
+type MoviesDocAccessFields_directors_name {
+  create: MoviesDocAccessFields_directors_name_Create
+  read: MoviesDocAccessFields_directors_name_Read
+  update: MoviesDocAccessFields_directors_name_Update
+  delete: MoviesDocAccessFields_directors_name_Delete
+}
+
+type MoviesDocAccessFields_directors_name_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_name_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_name_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_id {
+  create: MoviesDocAccessFields_directors_id_Create
+  read: MoviesDocAccessFields_directors_id_Read
+  update: MoviesDocAccessFields_directors_id_Update
+  delete: MoviesDocAccessFields_directors_id_Delete
+}
+
+type MoviesDocAccessFields_directors_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_directors_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast {
+  create: MoviesDocAccessFields_cast_Create
+  read: MoviesDocAccessFields_cast_Read
+  update: MoviesDocAccessFields_cast_Update
+  delete: MoviesDocAccessFields_cast_Delete
+  fields: MoviesDocAccessFields_cast_Fields
+}
+
+type MoviesDocAccessFields_cast_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_Fields {
+  name: MoviesDocAccessFields_cast_name
+  photo: MoviesDocAccessFields_cast_photo
+  id: MoviesDocAccessFields_cast_id
+}
+
+type MoviesDocAccessFields_cast_name {
+  create: MoviesDocAccessFields_cast_name_Create
+  read: MoviesDocAccessFields_cast_name_Read
+  update: MoviesDocAccessFields_cast_name_Update
+  delete: MoviesDocAccessFields_cast_name_Delete
+}
+
+type MoviesDocAccessFields_cast_name_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_name_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_name_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_photo {
+  create: MoviesDocAccessFields_cast_photo_Create
+  read: MoviesDocAccessFields_cast_photo_Read
+  update: MoviesDocAccessFields_cast_photo_Update
+  delete: MoviesDocAccessFields_cast_photo_Delete
+}
+
+type MoviesDocAccessFields_cast_photo_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_photo_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_photo_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_photo_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_id {
+  create: MoviesDocAccessFields_cast_id_Create
+  read: MoviesDocAccessFields_cast_id_Read
+  update: MoviesDocAccessFields_cast_id_Update
+  delete: MoviesDocAccessFields_cast_id_Delete
+}
+
+type MoviesDocAccessFields_cast_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_cast_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_didWeJump {
+  create: MoviesDocAccessFields_didWeJump_Create
+  read: MoviesDocAccessFields_didWeJump_Read
+  update: MoviesDocAccessFields_didWeJump_Update
+  delete: MoviesDocAccessFields_didWeJump_Delete
+}
+
+type MoviesDocAccessFields_didWeJump_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_didWeJump_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_didWeJump_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_didWeJump_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_gory {
+  create: MoviesDocAccessFields_gory_Create
+  read: MoviesDocAccessFields_gory_Read
+  update: MoviesDocAccessFields_gory_Update
+  delete: MoviesDocAccessFields_gory_Delete
+}
+
+type MoviesDocAccessFields_gory_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_gory_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_gory_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_gory_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_poster {
+  create: MoviesDocAccessFields_poster_Create
+  read: MoviesDocAccessFields_poster_Read
+  update: MoviesDocAccessFields_poster_Update
+  delete: MoviesDocAccessFields_poster_Delete
+}
+
+type MoviesDocAccessFields_poster_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_poster_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_poster_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_poster_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_overview {
+  create: MoviesDocAccessFields_overview_Create
+  read: MoviesDocAccessFields_overview_Read
+  update: MoviesDocAccessFields_overview_Update
+  delete: MoviesDocAccessFields_overview_Delete
+}
+
+type MoviesDocAccessFields_overview_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_overview_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_overview_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_overview_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_tagline {
+  create: MoviesDocAccessFields_tagline_Create
+  read: MoviesDocAccessFields_tagline_Read
+  update: MoviesDocAccessFields_tagline_Update
+  delete: MoviesDocAccessFields_tagline_Delete
+}
+
+type MoviesDocAccessFields_tagline_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_tagline_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_tagline_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_tagline_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres {
+  create: MoviesDocAccessFields_genres_Create
+  read: MoviesDocAccessFields_genres_Read
+  update: MoviesDocAccessFields_genres_Update
+  delete: MoviesDocAccessFields_genres_Delete
+  fields: MoviesDocAccessFields_genres_Fields
+}
+
+type MoviesDocAccessFields_genres_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_Fields {
+  name: MoviesDocAccessFields_genres_name
+  id: MoviesDocAccessFields_genres_id
+}
+
+type MoviesDocAccessFields_genres_name {
+  create: MoviesDocAccessFields_genres_name_Create
+  read: MoviesDocAccessFields_genres_name_Read
+  update: MoviesDocAccessFields_genres_name_Update
+  delete: MoviesDocAccessFields_genres_name_Delete
+}
+
+type MoviesDocAccessFields_genres_name_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_name_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_name_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_id {
+  create: MoviesDocAccessFields_genres_id_Create
+  read: MoviesDocAccessFields_genres_id_Read
+  update: MoviesDocAccessFields_genres_id_Update
+  delete: MoviesDocAccessFields_genres_id_Delete
+}
+
+type MoviesDocAccessFields_genres_id_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_id_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_id_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_genres_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_slug {
+  create: MoviesDocAccessFields_slug_Create
+  read: MoviesDocAccessFields_slug_Read
+  update: MoviesDocAccessFields_slug_Update
+  delete: MoviesDocAccessFields_slug_Delete
+}
+
+type MoviesDocAccessFields_slug_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_slug_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_slug_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_slug_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_updatedAt {
+  create: MoviesDocAccessFields_updatedAt_Create
+  read: MoviesDocAccessFields_updatedAt_Read
+  update: MoviesDocAccessFields_updatedAt_Update
+  delete: MoviesDocAccessFields_updatedAt_Delete
+}
+
+type MoviesDocAccessFields_updatedAt_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_updatedAt_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_updatedAt_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_updatedAt_Delete {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_createdAt {
+  create: MoviesDocAccessFields_createdAt_Create
+  read: MoviesDocAccessFields_createdAt_Read
+  update: MoviesDocAccessFields_createdAt_Update
+  delete: MoviesDocAccessFields_createdAt_Delete
+}
+
+type MoviesDocAccessFields_createdAt_Create {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_createdAt_Read {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_createdAt_Update {
+  permission: Boolean!
+}
+
+type MoviesDocAccessFields_createdAt_Delete {
+  permission: Boolean!
+}
+
+type MoviesCreateDocAccess {
+  permission: Boolean!
+  where: JSONObject
+}
+
+type MoviesReadDocAccess {
+  permission: Boolean!
+  where: JSONObject
+}
+
+type MoviesUpdateDocAccess {
+  permission: Boolean!
+  where: JSONObject
+}
+
+type MoviesDeleteDocAccess {
+  permission: Boolean!
+  where: JSONObject
 }
 
 type allMedia {
@@ -693,13 +2201,12 @@ input Media_focalY_operator {
 }
 
 input Media_id_operator {
-  equals: String
-  not_equals: String
-  like: String
-  contains: String
-  in: [String]
-  not_in: [String]
-  all: [String]
+  equals: Int
+  not_equals: Int
+  greater_than_equal: Int
+  greater_than: Int
+  less_than_equal: Int
+  less_than: Int
   exists: Boolean
 }
 
@@ -1063,7 +2570,7 @@ type MediaDeleteDocAccess {
 }
 
 type PayloadPreference {
-  id: String
+  id: Int
   user: PayloadPreference_User_Relationship!
   key: String
   value: JSON
@@ -1160,13 +2667,12 @@ input PayloadPreference_createdAt_operator {
 }
 
 input PayloadPreference_id_operator {
-  equals: String
-  not_equals: String
-  like: String
-  contains: String
-  in: [String]
-  not_in: [String]
-  all: [String]
+  equals: Int
+  not_equals: Int
+  greater_than_equal: Int
+  greater_than: Int
+  less_than_equal: Int
+  less_than: Int
   exists: Boolean
 }
 
@@ -1350,7 +2856,7 @@ type PayloadPreferencesDeleteDocAccess {
 type Access {
   canAccessAdmin: Boolean!
   users: usersAccess
-  pages: pagesAccess
+  movies: moviesAccess
   media: mediaAccess
   payload_preferences: payload_preferencesAccess
 }
@@ -1365,10 +2871,34 @@ type usersAccess {
 }
 
 type UsersFields {
+  username: UsersFields_username
   updatedAt: UsersFields_updatedAt
   createdAt: UsersFields_createdAt
   email: UsersFields_email
   password: UsersFields_password
+}
+
+type UsersFields_username {
+  create: UsersFields_username_Create
+  read: UsersFields_username_Read
+  update: UsersFields_username_Update
+  delete: UsersFields_username_Delete
+}
+
+type UsersFields_username_Create {
+  permission: Boolean!
+}
+
+type UsersFields_username_Read {
+  permission: Boolean!
+}
+
+type UsersFields_username_Update {
+  permission: Boolean!
+}
+
+type UsersFields_username_Delete {
+  permission: Boolean!
 }
 
 type UsersFields_updatedAt {
@@ -1488,129 +3018,845 @@ type UsersUnlockAccess {
   where: JSONObject
 }
 
-type pagesAccess {
-  fields: PagesFields
-  create: PagesCreateAccess
-  read: PagesReadAccess
-  update: PagesUpdateAccess
-  delete: PagesDeleteAccess
+type moviesAccess {
+  fields: MoviesFields
+  create: MoviesCreateAccess
+  read: MoviesReadAccess
+  update: MoviesUpdateAccess
+  delete: MoviesDeleteAccess
 }
 
-type PagesFields {
-  title: PagesFields_title
-  content: PagesFields_content
-  updatedAt: PagesFields_updatedAt
-  createdAt: PagesFields_createdAt
+type MoviesFields {
+  id: MoviesFields_id
+  name: MoviesFields_name
+  movieDate: MoviesFields_movieDate
+  url: MoviesFields_url
+  ratings: MoviesFields_ratings
+  services: MoviesFields_services
+  releaseDate: MoviesFields_releaseDate
+  producers: MoviesFields_producers
+  directors: MoviesFields_directors
+  cast: MoviesFields_cast
+  didWeJump: MoviesFields_didWeJump
+  gory: MoviesFields_gory
+  poster: MoviesFields_poster
+  overview: MoviesFields_overview
+  tagline: MoviesFields_tagline
+  genres: MoviesFields_genres
+  slug: MoviesFields_slug
+  updatedAt: MoviesFields_updatedAt
+  createdAt: MoviesFields_createdAt
 }
 
-type PagesFields_title {
-  create: PagesFields_title_Create
-  read: PagesFields_title_Read
-  update: PagesFields_title_Update
-  delete: PagesFields_title_Delete
+type MoviesFields_id {
+  create: MoviesFields_id_Create
+  read: MoviesFields_id_Read
+  update: MoviesFields_id_Update
+  delete: MoviesFields_id_Delete
 }
 
-type PagesFields_title_Create {
+type MoviesFields_id_Create {
   permission: Boolean!
 }
 
-type PagesFields_title_Read {
+type MoviesFields_id_Read {
   permission: Boolean!
 }
 
-type PagesFields_title_Update {
+type MoviesFields_id_Update {
   permission: Boolean!
 }
 
-type PagesFields_title_Delete {
+type MoviesFields_id_Delete {
   permission: Boolean!
 }
 
-type PagesFields_content {
-  create: PagesFields_content_Create
-  read: PagesFields_content_Read
-  update: PagesFields_content_Update
-  delete: PagesFields_content_Delete
+type MoviesFields_name {
+  create: MoviesFields_name_Create
+  read: MoviesFields_name_Read
+  update: MoviesFields_name_Update
+  delete: MoviesFields_name_Delete
 }
 
-type PagesFields_content_Create {
+type MoviesFields_name_Create {
   permission: Boolean!
 }
 
-type PagesFields_content_Read {
+type MoviesFields_name_Read {
   permission: Boolean!
 }
 
-type PagesFields_content_Update {
+type MoviesFields_name_Update {
   permission: Boolean!
 }
 
-type PagesFields_content_Delete {
+type MoviesFields_name_Delete {
   permission: Boolean!
 }
 
-type PagesFields_updatedAt {
-  create: PagesFields_updatedAt_Create
-  read: PagesFields_updatedAt_Read
-  update: PagesFields_updatedAt_Update
-  delete: PagesFields_updatedAt_Delete
+type MoviesFields_movieDate {
+  create: MoviesFields_movieDate_Create
+  read: MoviesFields_movieDate_Read
+  update: MoviesFields_movieDate_Update
+  delete: MoviesFields_movieDate_Delete
 }
 
-type PagesFields_updatedAt_Create {
+type MoviesFields_movieDate_Create {
   permission: Boolean!
 }
 
-type PagesFields_updatedAt_Read {
+type MoviesFields_movieDate_Read {
   permission: Boolean!
 }
 
-type PagesFields_updatedAt_Update {
+type MoviesFields_movieDate_Update {
   permission: Boolean!
 }
 
-type PagesFields_updatedAt_Delete {
+type MoviesFields_movieDate_Delete {
   permission: Boolean!
 }
 
-type PagesFields_createdAt {
-  create: PagesFields_createdAt_Create
-  read: PagesFields_createdAt_Read
-  update: PagesFields_createdAt_Update
-  delete: PagesFields_createdAt_Delete
+type MoviesFields_url {
+  create: MoviesFields_url_Create
+  read: MoviesFields_url_Read
+  update: MoviesFields_url_Update
+  delete: MoviesFields_url_Delete
 }
 
-type PagesFields_createdAt_Create {
+type MoviesFields_url_Create {
   permission: Boolean!
 }
 
-type PagesFields_createdAt_Read {
+type MoviesFields_url_Read {
   permission: Boolean!
 }
 
-type PagesFields_createdAt_Update {
+type MoviesFields_url_Update {
   permission: Boolean!
 }
 
-type PagesFields_createdAt_Delete {
+type MoviesFields_url_Delete {
   permission: Boolean!
 }
 
-type PagesCreateAccess {
+type MoviesFields_ratings {
+  create: MoviesFields_ratings_Create
+  read: MoviesFields_ratings_Read
+  update: MoviesFields_ratings_Update
+  delete: MoviesFields_ratings_Delete
+  fields: MoviesFields_ratings_Fields
+}
+
+type MoviesFields_ratings_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_Fields {
+  rating: MoviesFields_ratings_rating
+  reviewer: MoviesFields_ratings_reviewer
+  review: MoviesFields_ratings_review
+  review_html: MoviesFields_ratings_review_html
+  id: MoviesFields_ratings_id
+}
+
+type MoviesFields_ratings_rating {
+  create: MoviesFields_ratings_rating_Create
+  read: MoviesFields_ratings_rating_Read
+  update: MoviesFields_ratings_rating_Update
+  delete: MoviesFields_ratings_rating_Delete
+}
+
+type MoviesFields_ratings_rating_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_rating_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_rating_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_rating_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_reviewer {
+  create: MoviesFields_ratings_reviewer_Create
+  read: MoviesFields_ratings_reviewer_Read
+  update: MoviesFields_ratings_reviewer_Update
+  delete: MoviesFields_ratings_reviewer_Delete
+}
+
+type MoviesFields_ratings_reviewer_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_reviewer_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_reviewer_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_reviewer_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review {
+  create: MoviesFields_ratings_review_Create
+  read: MoviesFields_ratings_review_Read
+  update: MoviesFields_ratings_review_Update
+  delete: MoviesFields_ratings_review_Delete
+}
+
+type MoviesFields_ratings_review_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_html {
+  create: MoviesFields_ratings_review_html_Create
+  read: MoviesFields_ratings_review_html_Read
+  update: MoviesFields_ratings_review_html_Update
+  delete: MoviesFields_ratings_review_html_Delete
+}
+
+type MoviesFields_ratings_review_html_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_html_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_html_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_review_html_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_id {
+  create: MoviesFields_ratings_id_Create
+  read: MoviesFields_ratings_id_Read
+  update: MoviesFields_ratings_id_Update
+  delete: MoviesFields_ratings_id_Delete
+}
+
+type MoviesFields_ratings_id_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_id_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_id_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_ratings_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_services {
+  create: MoviesFields_services_Create
+  read: MoviesFields_services_Read
+  update: MoviesFields_services_Update
+  delete: MoviesFields_services_Delete
+}
+
+type MoviesFields_services_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_services_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_services_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_services_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_releaseDate {
+  create: MoviesFields_releaseDate_Create
+  read: MoviesFields_releaseDate_Read
+  update: MoviesFields_releaseDate_Update
+  delete: MoviesFields_releaseDate_Delete
+}
+
+type MoviesFields_releaseDate_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_releaseDate_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_releaseDate_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_releaseDate_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_producers {
+  create: MoviesFields_producers_Create
+  read: MoviesFields_producers_Read
+  update: MoviesFields_producers_Update
+  delete: MoviesFields_producers_Delete
+  fields: MoviesFields_producers_Fields
+}
+
+type MoviesFields_producers_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_Fields {
+  name: MoviesFields_producers_name
+  id: MoviesFields_producers_id
+}
+
+type MoviesFields_producers_name {
+  create: MoviesFields_producers_name_Create
+  read: MoviesFields_producers_name_Read
+  update: MoviesFields_producers_name_Update
+  delete: MoviesFields_producers_name_Delete
+}
+
+type MoviesFields_producers_name_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_name_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_name_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_id {
+  create: MoviesFields_producers_id_Create
+  read: MoviesFields_producers_id_Read
+  update: MoviesFields_producers_id_Update
+  delete: MoviesFields_producers_id_Delete
+}
+
+type MoviesFields_producers_id_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_id_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_id_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_producers_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_directors {
+  create: MoviesFields_directors_Create
+  read: MoviesFields_directors_Read
+  update: MoviesFields_directors_Update
+  delete: MoviesFields_directors_Delete
+  fields: MoviesFields_directors_Fields
+}
+
+type MoviesFields_directors_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_Fields {
+  name: MoviesFields_directors_name
+  id: MoviesFields_directors_id
+}
+
+type MoviesFields_directors_name {
+  create: MoviesFields_directors_name_Create
+  read: MoviesFields_directors_name_Read
+  update: MoviesFields_directors_name_Update
+  delete: MoviesFields_directors_name_Delete
+}
+
+type MoviesFields_directors_name_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_name_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_name_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_id {
+  create: MoviesFields_directors_id_Create
+  read: MoviesFields_directors_id_Read
+  update: MoviesFields_directors_id_Update
+  delete: MoviesFields_directors_id_Delete
+}
+
+type MoviesFields_directors_id_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_id_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_id_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_directors_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_cast {
+  create: MoviesFields_cast_Create
+  read: MoviesFields_cast_Read
+  update: MoviesFields_cast_Update
+  delete: MoviesFields_cast_Delete
+  fields: MoviesFields_cast_Fields
+}
+
+type MoviesFields_cast_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_Fields {
+  name: MoviesFields_cast_name
+  photo: MoviesFields_cast_photo
+  id: MoviesFields_cast_id
+}
+
+type MoviesFields_cast_name {
+  create: MoviesFields_cast_name_Create
+  read: MoviesFields_cast_name_Read
+  update: MoviesFields_cast_name_Update
+  delete: MoviesFields_cast_name_Delete
+}
+
+type MoviesFields_cast_name_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_name_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_name_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_photo {
+  create: MoviesFields_cast_photo_Create
+  read: MoviesFields_cast_photo_Read
+  update: MoviesFields_cast_photo_Update
+  delete: MoviesFields_cast_photo_Delete
+}
+
+type MoviesFields_cast_photo_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_photo_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_photo_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_photo_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_id {
+  create: MoviesFields_cast_id_Create
+  read: MoviesFields_cast_id_Read
+  update: MoviesFields_cast_id_Update
+  delete: MoviesFields_cast_id_Delete
+}
+
+type MoviesFields_cast_id_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_id_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_id_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_cast_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_didWeJump {
+  create: MoviesFields_didWeJump_Create
+  read: MoviesFields_didWeJump_Read
+  update: MoviesFields_didWeJump_Update
+  delete: MoviesFields_didWeJump_Delete
+}
+
+type MoviesFields_didWeJump_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_didWeJump_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_didWeJump_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_didWeJump_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_gory {
+  create: MoviesFields_gory_Create
+  read: MoviesFields_gory_Read
+  update: MoviesFields_gory_Update
+  delete: MoviesFields_gory_Delete
+}
+
+type MoviesFields_gory_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_gory_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_gory_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_gory_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_poster {
+  create: MoviesFields_poster_Create
+  read: MoviesFields_poster_Read
+  update: MoviesFields_poster_Update
+  delete: MoviesFields_poster_Delete
+}
+
+type MoviesFields_poster_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_poster_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_poster_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_poster_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_overview {
+  create: MoviesFields_overview_Create
+  read: MoviesFields_overview_Read
+  update: MoviesFields_overview_Update
+  delete: MoviesFields_overview_Delete
+}
+
+type MoviesFields_overview_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_overview_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_overview_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_overview_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_tagline {
+  create: MoviesFields_tagline_Create
+  read: MoviesFields_tagline_Read
+  update: MoviesFields_tagline_Update
+  delete: MoviesFields_tagline_Delete
+}
+
+type MoviesFields_tagline_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_tagline_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_tagline_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_tagline_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_genres {
+  create: MoviesFields_genres_Create
+  read: MoviesFields_genres_Read
+  update: MoviesFields_genres_Update
+  delete: MoviesFields_genres_Delete
+  fields: MoviesFields_genres_Fields
+}
+
+type MoviesFields_genres_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_Fields {
+  name: MoviesFields_genres_name
+  id: MoviesFields_genres_id
+}
+
+type MoviesFields_genres_name {
+  create: MoviesFields_genres_name_Create
+  read: MoviesFields_genres_name_Read
+  update: MoviesFields_genres_name_Update
+  delete: MoviesFields_genres_name_Delete
+}
+
+type MoviesFields_genres_name_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_name_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_name_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_name_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_id {
+  create: MoviesFields_genres_id_Create
+  read: MoviesFields_genres_id_Read
+  update: MoviesFields_genres_id_Update
+  delete: MoviesFields_genres_id_Delete
+}
+
+type MoviesFields_genres_id_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_id_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_id_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_genres_id_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_slug {
+  create: MoviesFields_slug_Create
+  read: MoviesFields_slug_Read
+  update: MoviesFields_slug_Update
+  delete: MoviesFields_slug_Delete
+}
+
+type MoviesFields_slug_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_slug_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_slug_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_slug_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_updatedAt {
+  create: MoviesFields_updatedAt_Create
+  read: MoviesFields_updatedAt_Read
+  update: MoviesFields_updatedAt_Update
+  delete: MoviesFields_updatedAt_Delete
+}
+
+type MoviesFields_updatedAt_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_updatedAt_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_updatedAt_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_updatedAt_Delete {
+  permission: Boolean!
+}
+
+type MoviesFields_createdAt {
+  create: MoviesFields_createdAt_Create
+  read: MoviesFields_createdAt_Read
+  update: MoviesFields_createdAt_Update
+  delete: MoviesFields_createdAt_Delete
+}
+
+type MoviesFields_createdAt_Create {
+  permission: Boolean!
+}
+
+type MoviesFields_createdAt_Read {
+  permission: Boolean!
+}
+
+type MoviesFields_createdAt_Update {
+  permission: Boolean!
+}
+
+type MoviesFields_createdAt_Delete {
+  permission: Boolean!
+}
+
+type MoviesCreateAccess {
   permission: Boolean!
   where: JSONObject
 }
 
-type PagesReadAccess {
+type MoviesReadAccess {
   permission: Boolean!
   where: JSONObject
 }
 
-type PagesUpdateAccess {
+type MoviesUpdateAccess {
   permission: Boolean!
   where: JSONObject
 }
 
-type PagesDeleteAccess {
+type MoviesDeleteAccess {
   permission: Boolean!
   where: JSONObject
 }
@@ -2087,29 +4333,30 @@ type PayloadPreferencesDeleteAccess {
 
 type Mutation {
   createUser(data: mutationUserInput!, draft: Boolean): User
-  updateUser(id: String!, autosave: Boolean, data: mutationUserUpdateInput!, draft: Boolean): User
-  deleteUser(id: String!): User
-  refreshTokenUser(token: String): usersRefreshedUser
+  updateUser(id: Int!, autosave: Boolean, data: mutationUserUpdateInput!, draft: Boolean): User
+  deleteUser(id: Int!): User
+  refreshTokenUser: usersRefreshedUser
   logoutUser: String
   unlockUser(email: String!): Boolean!
-  loginUser(email: String, password: String): usersLoginResult
+  loginUser(email: String, password: String, username: String): usersLoginResult
   forgotPasswordUser(disableEmail: Boolean, email: String!, expiration: Int): Boolean!
   resetPasswordUser(password: String, token: String): usersResetPassword
   verifyEmailUser(token: String): Boolean
-  createPage(data: mutationPageInput!, draft: Boolean): Page
-  updatePage(id: String!, autosave: Boolean, data: mutationPageUpdateInput!, draft: Boolean): Page
-  deletePage(id: String!): Page
-  duplicatePage(id: String!): Page
+  createMovie(data: mutationMovieInput!, draft: Boolean): Movie
+  updateMovie(id: String!, autosave: Boolean, data: mutationMovieUpdateInput!, draft: Boolean): Movie
+  deleteMovie(id: String!): Movie
+  duplicateMovie(id: String!): Movie
   createMedia(data: mutationMediaInput!, draft: Boolean): Media
-  updateMedia(id: String!, autosave: Boolean, data: mutationMediaUpdateInput!, draft: Boolean): Media
-  deleteMedia(id: String!): Media
+  updateMedia(id: Int!, autosave: Boolean, data: mutationMediaUpdateInput!, draft: Boolean): Media
+  deleteMedia(id: Int!): Media
   createPayloadPreference(data: mutationPayloadPreferenceInput!, draft: Boolean): PayloadPreference
-  updatePayloadPreference(id: String!, autosave: Boolean, data: mutationPayloadPreferenceUpdateInput!, draft: Boolean): PayloadPreference
-  deletePayloadPreference(id: String!): PayloadPreference
-  duplicatePayloadPreference(id: String!): PayloadPreference
+  updatePayloadPreference(id: Int!, autosave: Boolean, data: mutationPayloadPreferenceUpdateInput!, draft: Boolean): PayloadPreference
+  deletePayloadPreference(id: Int!): PayloadPreference
+  duplicatePayloadPreference(id: Int!): PayloadPreference
 }
 
 input mutationUserInput {
+  username: String
   updatedAt: String
   createdAt: String
   email: String!
@@ -2123,6 +4370,7 @@ input mutationUserInput {
 }
 
 input mutationUserUpdateInput {
+  username: String
   updatedAt: String
   createdAt: String
   email: String
@@ -2138,6 +4386,7 @@ input mutationUserUpdateInput {
 type usersRefreshedUser {
   exp: Int
   refreshedToken: String
+  strategy: String
   user: usersJWT
 }
 
@@ -2157,18 +4406,141 @@ type usersResetPassword {
   user: User
 }
 
-input mutationPageInput {
-  title: String
-  content: JSON
+input mutationMovieInput {
+  id: String!
+  name: String!
+  movieDate: String!
+  url: String!
+  ratings: [mutationMovie_RatingsInput]
+  services: Movie_services_MutationInput
+  releaseDate: String
+  producers: [mutationMovie_ProducersInput]
+  directors: [mutationMovie_DirectorsInput]
+  cast: [mutationMovie_CastInput]
+  didWeJump: Movie_didWeJump_MutationInput
+  gory: Boolean
+  poster: String!
+  overview: String!
+  tagline: String
+  genres: [mutationMovie_GenresInput]
+  slug: String
   updatedAt: String
   createdAt: String
 }
 
-input mutationPageUpdateInput {
-  title: String
-  content: JSON
+input mutationMovie_RatingsInput {
+  rating: Float!
+  reviewer: Int
+  review: JSON
+  review_html: String
+  id: String
+}
+
+enum Movie_services_MutationInput {
+  Netflix
+  Shudder
+  Stan
+  AmazonPrime
+  DisneyPlus
+  Binge
+  AppleTV
+  Paramount
+  Flixtor
+}
+
+input mutationMovie_ProducersInput {
+  name: String
+  id: String
+}
+
+input mutationMovie_DirectorsInput {
+  name: String
+  id: String
+}
+
+input mutationMovie_CastInput {
+  name: String
+  photo: String
+  id: String
+}
+
+enum Movie_didWeJump_MutationInput {
+  Jack_baby_
+  Both
+  Fatima_baby_
+}
+
+input mutationMovie_GenresInput {
+  name: String
+  id: String
+}
+
+input mutationMovieUpdateInput {
+  name: String
+  movieDate: String
+  url: String
+  ratings: [mutationMovieUpdate_RatingsInput]
+  services: MovieUpdate_services_MutationInput
+  releaseDate: String
+  producers: [mutationMovieUpdate_ProducersInput]
+  directors: [mutationMovieUpdate_DirectorsInput]
+  cast: [mutationMovieUpdate_CastInput]
+  didWeJump: MovieUpdate_didWeJump_MutationInput
+  gory: Boolean
+  poster: String
+  overview: String
+  tagline: String
+  genres: [mutationMovieUpdate_GenresInput]
+  slug: String
   updatedAt: String
   createdAt: String
+}
+
+input mutationMovieUpdate_RatingsInput {
+  rating: Float!
+  reviewer: Int
+  review: JSON
+  review_html: String
+  id: String
+}
+
+enum MovieUpdate_services_MutationInput {
+  Netflix
+  Shudder
+  Stan
+  AmazonPrime
+  DisneyPlus
+  Binge
+  AppleTV
+  Paramount
+  Flixtor
+}
+
+input mutationMovieUpdate_ProducersInput {
+  name: String
+  id: String
+}
+
+input mutationMovieUpdate_DirectorsInput {
+  name: String
+  id: String
+}
+
+input mutationMovieUpdate_CastInput {
+  name: String
+  photo: String
+  id: String
+}
+
+enum MovieUpdate_didWeJump_MutationInput {
+  Jack_baby_
+  Both
+  Fatima_baby_
+}
+
+input mutationMovieUpdate_GenresInput {
+  name: String
+  id: String
 }
 
 input mutationMediaInput {

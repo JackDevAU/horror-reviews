@@ -7,7 +7,7 @@ const format = (val: string): string =>
     .replace(/[^\w-/]+/g, '')
     .toLowerCase()
 
-const formatSlug =
+export const formatSlug =
   (fallback: string): FieldHook =>
   ({ value, originalDoc, data }) => {
     if (typeof value === 'string') {
@@ -29,14 +29,20 @@ export const MoviesCollection: CollectionConfig = {
   },
   access: {
     create: () => true,
+    update: () => true,
     read: () => true,
   },
   fields: [
     {
-      name: 'name',
+      name: 'movieId',
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
     },
     {
       name: 'movieDate',
@@ -167,7 +173,8 @@ export const MoviesCollection: CollectionConfig = {
     {
       name: 'overview',
       type: 'text',
-      required: true,
+      required: false,
+      defaultValue: 'No overview provided',
     },
     {
       name: 'tagline',
