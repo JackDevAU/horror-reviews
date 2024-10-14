@@ -7,18 +7,10 @@ import {
   CarouselPrevious,
 } from './ui/carousel'
 import CarouselCardItem from './carousel-card-item'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
-import configPromise from '@payload-config'
+import type { PaginatedDocs } from 'payload'
+import type { Movie } from 'payload-types'
 
-export default async function HomeCarousel() {
-  // Get the top 3 rated movies
-  const payload = await getPayloadHMR({ config: configPromise })
-
-  // Fetch all movies to calculate their ratings
-  const allMovies = await payload.find({
-    collection: 'movies',
-  })
-
+export default async function HomeCarousel({ allMovies }: { allMovies: PaginatedDocs<Movie> }) {
   if (allMovies.docs.length === 0) {
     return null
   }

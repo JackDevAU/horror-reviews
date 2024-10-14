@@ -1,19 +1,13 @@
 import React from 'react'
 import ReviewCard from './review-card'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
-import configPromise from '@payload-config'
+import type { PaginatedDocs } from 'payload'
+import type { Movie } from 'payload-types'
 
-export default async function ReviewCardList() {
-  //the last 4 reviewed movies
-  const payload = await getPayloadHMR({ config: configPromise })
-
-  // Fetch all movies to calculate their ratings
-  const lastReviewed = await payload.find({
-    collection: 'movies',
-    limit: 4,
-    sort: '-movieDate',
-  })
-
+export default async function ReviewCardList({
+  lastReviewed,
+}: {
+  lastReviewed: PaginatedDocs<Movie>
+}) {
   if (!lastReviewed.docs) {
     return (
       <div>
